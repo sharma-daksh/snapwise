@@ -11,7 +11,7 @@ Pillow==10.4.0             # image I/O, format conversion
 numpy>=1.24.0              # array ops (OpenCV uses numpy arrays)
 
 # ── PDF Processing ─────────────────────────────────────────────────────────
-PyMuPDF==1.24.5            # rasterise PDF pages to PNG at any DPI
+PyMuPDF==1.27.2.2           # rasterise PDF pages to PNG at any DPI
 
 # ── Classical ML ───────────────────────────────────────────────────────────
 scikit-learn>=1.3.0        # TF-IDF vectoriser for keyword extraction
