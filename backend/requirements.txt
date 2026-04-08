@@ -1,0 +1,23 @@
+# ── Web Framework ──────────────────────────────────────────────────────────
+flask==3.0.3
+flask-cors==4.0.1
+
+# ── VLM API Client (OpenAI SDK → HuggingFace router) ──────────────────────
+openai>=1.30.0
+
+# ── Computer Vision ────────────────────────────────────────────────────────
+opencv-python==4.10.0.84   # classical CV: Gaussian blur, CLAHE, Hough, morph
+Pillow==10.4.0             # image I/O, format conversion
+numpy>=1.24.0              # array ops (OpenCV uses numpy arrays)
+
+# ── PDF Processing ─────────────────────────────────────────────────────────
+PyMuPDF==1.24.5            # rasterise PDF pages to PNG at any DPI
+
+# ── Classical ML ───────────────────────────────────────────────────────────
+scikit-learn>=1.3.0        # TF-IDF vectoriser for keyword extraction
+
+# ── Deep Learning (Zero-Shot Classification) ───────────────────────────────
+transformers>=4.40.0       # HuggingFace transformers: BART-MNLI pipeline
+torch>=2.0.0               # PyTorch backend for transformers (CPU is fine)
+
+easyocr>=1.7.0             # pure-Python DL OCR — word bounding boxes, no binary install needed
