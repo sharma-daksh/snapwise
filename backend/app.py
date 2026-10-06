@@ -14,9 +14,7 @@ import fitz
 import easyocr
 from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import pipeline as hf_pipeline
-from openai import OpenAI
-
-
+from huggingface_hub import InferenceClient
 # ═══════════════════════════════════════════════════════
 # APP INIT
 # ═══════════════════════════════════════════════════════
@@ -24,11 +22,14 @@ from openai import OpenAI
 app = Flask(__name__)
 CORS(app)
 
-HF_TOKEN    = os.environ.get("HF_TOKEN", "YOUR_HF_TOKEN_HERE")
-VLM_MODEL = "CohereLabs/aya-vision-32b:cohere"
+HF_TOKEN = os.environ.get("HF_TOKEN")
+
+if not HF_TOKEN:
+    raise RuntimeError("HF_TOKEN environment variable is not set")
+VLM_MODEL = "CohereLabs/aya-vision-32b"
 VLM_MAX_TOK = 1024
-vlm_client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
+vlm_client = InferenceClient(
+    provider="cohere",
     api_key=HF_TOKEN,
 )
 
@@ -149,27 +150,41 @@ def _deskew(gray: np.ndarray) -> np.ndarray:
 # ═══════════════════════════════════════════════════════
 
 def vlm_analyse(processed_bytes: bytes) -> dict:
-    b64      = base64.standard_b64encode(processed_bytes).decode("utf-8")
+    b64 = base64.standard_b64encode(processed_bytes).decode("utf-8")
     data_url = f"data:image/jpeg;base64,{b64}"
 
     completion = vlm_client.chat.completions.create(
         model=VLM_MODEL,
         max_tokens=VLM_MAX_TOK,
-        messages=[{
-            "role": "user",
-            "content": [
-                {"type": "image_url", "image_url": {"url": data_url}},
-                {"type": "text",      "text": VLM_PROMPT},
-            ],
-        }],
+        temperature=0.2,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": VLM_PROMPT,
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": data_url,
+                        },
+                    },
+                ],
+            }
+        ],
     )
 
     raw = completion.choices[0].message.content.strip()
+
     if raw.startswith("```"):
         parts = raw.split("```")
-        raw   = parts[1]
+        raw = parts[1]
+
         if raw.startswith("json"):
             raw = raw[4:]
+
         raw = raw.strip()
 
     return json.loads(raw)
